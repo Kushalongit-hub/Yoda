@@ -319,7 +319,7 @@ document.head.appendChild(style);`}
       <footer className="border-t border-white/5 py-10 px-6 bg-deep">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-muted font-semibold tracking-tight">
-            Google for Developers
+            Powered by AI
           </div>
           <div className="flex items-center gap-8 text-sm text-muted font-medium">
             <a href="#" className="hover:text-white transition-colors">FAQ</a>

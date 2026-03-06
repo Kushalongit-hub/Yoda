@@ -280,6 +280,33 @@ List every external service/API this project calls:
 Failure Handling column: what happens if this service goes down?
 Risk Level: Low/Medium/High — based on how critical it is
 
+### Architecture Diagrams
+You MUST include exactly 2 Mermaid diagrams in this section showing different views of the system.
+- Diagram 1: System Architecture (graph TD) – major components and their relationships
+- Diagram 2: Data Flow (graph LR or sequenceDiagram) – how data moves through the system
+- Use real file/component names from the codebase
+- Keep each under 20 nodes
+- Format: wrap each in triple backticks with \`mermaid\` language tag
+- Example (for this Yoda codebase):
+\`\`\`mermaid
+graph TD
+  Landing --> App
+  App --> GitHub[GitHub API]
+  GitHub --> Fetch[fetchRepoData]
+  Fetch --> Gemini[generateReportStream]
+  Gemini --> Render[Report.tsx]
+\`\`\`
+\`\`\`mermaid
+graph LR
+  URL[GitHub URL] -->|input| App
+  App -->|fetch| GH[GitHub Tree]
+  GH -->|files| Prompt[Gemini Prompt]
+  Prompt -->|stream| UI[Report UI]
+  UI -->|export| File[MD Download]
+\`\`\`
+- **DO NOT OMIT DIAGRAMS** – reports without exactly 2 diagrams are incomplete.
+
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ## SECTION 5 — API SURFACE ANALYSIS
@@ -419,22 +446,21 @@ export async function generateReportStream(
       throw new Error("NVIDIA NIM API Key is missing. Please add VITE_NVIDIA_NIM_API_KEY to your .env file.");
     }
 
-    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${nimApiKey}`
-      },
-      body: JSON.stringify({
-        model: "meta/llama-3.1-405b-instruct",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.2,
-        stream: true,
-        max_tokens: 8000
-      })
+     const response = await fetch("/v1/chat/completions", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+       },
+       body: JSON.stringify({
+         model: "nvidia/nemotron-3-nano-30b-a3b",
+         messages: [
+           { role: "system", content: SYSTEM_PROMPT },
+           { role: "user", content: prompt }
+         ],
+         temperature: 0.2,
+         stream: true,
+         max_tokens: 8000
+       })
     });
 
     if (!response.ok) {

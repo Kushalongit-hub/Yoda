@@ -16,9 +16,27 @@ export default defineConfig(({mode}) => {
       },
     },
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
+      proxy: {
+        '/v1/chat/completions': {
+          target: 'https://integrate.api.nvidia.com',
+          changeOrigin: true,
+          headers: {
+            'Authorization': `Bearer ${env.VITE_NVIDIA_NIM_API_KEY}`,
+          },
+          onProxyReq(proxyReq, req, res) {
+            console.log('[Proxy] outgoing request to', proxyReq.path);
+          },
+          onError(err, req, res) {
+            console.error('[Proxy] error:', err.message);
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Proxy error: ' + err.message);
+          },
+          onProxyRes(proxyRes, req, res) {
+            console.log('[Proxy] response status:', proxyRes.statusCode);
+          }
+        },
+      },
     },
   };
 });

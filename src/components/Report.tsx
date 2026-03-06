@@ -37,7 +37,7 @@ export const Report: React.FC<ReportProps> = ({ repoUrl, reportContent, isGenera
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-bold text-lg leading-tight text-white">Due Diligence Report</h1>
+            <h1 className="font-bold text-lg leading-tight text-white">Yoda Report</h1>
             <a
               href={repoUrl}
               target="_blank"
@@ -68,24 +68,8 @@ export const Report: React.FC<ReportProps> = ({ repoUrl, reportContent, isGenera
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <div className="prose prose-invert prose-lg max-w-none
-          prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-white
-          prose-h1:text-4xl prose-h1:mb-8 prose-h1:pb-4 prose-h1:border-b prose-h1:border-blue-dim/30 prose-h1:text-blue-glow
-          prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:uppercase prose-h2:tracking-widest prose-h2:text-sm prose-h2:text-muted
-          prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h3:text-white
-          prose-p:leading-relaxed prose-p:text-white/80
-          prose-a:text-blue-glow prose-a:no-underline hover:prose-a:underline
-          prose-strong:font-bold prose-strong:text-white
-          prose-code:text-sm prose-code:font-mono prose-code:bg-deep prose-code:text-orange-acc prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-blue-dim/30
-          prose-pre:bg-deep prose-pre:text-white prose-pre:p-4 prose-pre:rounded-xl prose-pre:overflow-x-auto prose-pre:border prose-pre:border-blue-dim/30
-          prose-table:w-full prose-table:text-sm
-          prose-th:bg-deep prose-th:p-3 prose-th:text-left prose-th:font-semibold prose-th:text-blue-glow prose-th:border-b prose-th:border-blue-dim/50
-          prose-td:p-3 prose-td:border-b prose-td:border-blue-dim/20
-          prose-ul:list-disc prose-ul:pl-5
-          prose-ol:list-decimal prose-ol:pl-5
-          prose-li:my-1
-        ">
+       <main className="max-w-4xl mx-auto px-12 py-20 space-y-12">
+        <div className="prose prose-invert prose-lg max-w-none space-y-8">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{

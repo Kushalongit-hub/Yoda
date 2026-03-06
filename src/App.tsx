@@ -17,14 +17,32 @@ export default function App() {
     setProgressMsg('Initializing...');
     setReportContent('');
     
-    try {
-      // 1. Fetch GitHub Data
-      const repoData = await fetchRepoData(url, setProgressMsg);
-      
-      // 2. Switch to Report View
-      setRepoUrl(url);
-      setIsLoading(false);
-      setIsGenerating(true);
+     try {
+       // 1. Fetch GitHub Data
+       const repoData = await fetchRepoData(url, setProgressMsg);
+       
+       // Debug: log what we're sending to the AI
+       console.log('=== REPO DATA DEBUG ===');
+       console.log('Total characters:', repoData.length);
+       console.log('Estimated tokens:', Math.ceil(repoData.length / 4));
+       console.log('First 1000 chars:\n', repoData.substring(0, 1000));
+       console.log('=== END DEBUG ===');
+       
+       // Validate repo data is substantial
+       if (!repoData || repoData.trim().length < 100) {
+         throw new Error("Insufficient repository data fetched. The repository may be empty or inaccessible.");
+       }
+       
+       // Warn if data seems too small (likely incomplete)
+       const estimatedTokens = Math.ceil(repoData.length / 4);
+       if (estimatedTokens < 10000) {
+         console.warn(`Repo data is small (~${estimatedTokens} tokens). Report may be incomplete.`);
+       }
+       
+       // 2. Switch to Report View
+       setRepoUrl(url);
+       setIsLoading(false);
+       setIsGenerating(true);
       
       // 3. Start Streaming Report
       await generateReportStream(repoData, (chunk) => {

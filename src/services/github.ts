@@ -40,7 +40,8 @@ export async function fetchRepoData(repoUrl: string, onProgress: (msg: string) =
 
   const excludeDirs = new Set([
     'node_modules', 'vendor', 'dist', 'build', 'out', 'target', 'bin', 'obj', 
-    '.git', '.github', '.vscode', '.idea', 'docs', 'tests', 'test', 'spec', 'assets', 'public'
+    '.git', '.github', '.vscode', '.idea', 'docs', 'tests', 'test', 'spec', 'assets', 'public',
+    'coverage', '.next', '.nuxt', 'cache', 'tmp', 'temp'
   ]);
 
   let files = treeData.tree.filter((item: any) => {
@@ -66,38 +67,64 @@ export async function fetchRepoData(repoUrl: string, onProgress: (msg: string) =
   const getScore = (path: string) => {
     const lower = path.toLowerCase();
     if (lower === 'readme.md') return 100;
-    if (lower === 'package.json' || lower === 'cargo.toml' || lower === 'requirements.txt') return 90;
+    if (lower === 'package.json' || lower === 'cargo.toml' || lower === 'requirements.txt' || lower === 'pyproject.toml') return 90;
     if (lower.includes('main.') || lower.includes('index.') || lower.includes('app.') || lower.includes('server.')) return 80;
     if (path.startsWith('src/')) return 70;
     if (path.startsWith('lib/')) return 60;
+    if (lower.includes('config') || lower.includes('settings')) return 50;
     return 10;
   };
 
   files.sort((a: any, b: any) => getScore(b.path) - getScore(a.path));
 
-  // Limit to top 30 files to avoid massive payloads
-  files = files.slice(0, 30);
+  // Token-aware limiting: estimated tokens = chars / 3 (more realistic for code)
+  // Target ~600k tokens to leave room for system prompt (15k) and output (8k)
+  const TOKEN_BUDGET = 600000;
+  const ESTIMATED_TOKENS_PER_CHAR = 3; // more realistic for code
+  let totalTokens = 0;
+  const selectedFiles: any[] = [];
 
-  onProgress(`Downloading ${files.length} key files...`);
+  for (const file of files) {
+    // Skip large individual files (>50KB) that would consume too much budget alone
+    if (file.size > 50000) {
+      console.log(`Skipping ${file.path} (${file.size} bytes)`);
+      continue;
+    }
+    
+    const estimatedTokens = Math.ceil(file.size / ESTIMATED_TOKENS_PER_CHAR);
+    
+    if (totalTokens + estimatedTokens > TOKEN_BUDGET) {
+      break; // Stop when we'd exceed budget
+    }
+    
+    selectedFiles.push(file);
+    totalTokens += estimatedTokens;
+  }
 
-  // 5. Fetch contents
+  onProgress(`Selected ${selectedFiles.length} files (~${Math.round(totalTokens/1000)}k tokens)`);
+
+  if (selectedFiles.length === 0) {
+    throw new Error("No files selected for analysis. The repository may not contain any supported file types.");
+  }
+
+  // 6. Fetch contents
   let combinedContent = "";
   let fetchedCount = 0;
 
-  for (const file of files) {
+  for (const file of selectedFiles) {
     try {
       const rawRes = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${file.path}`);
       if (rawRes.ok) {
         const content = await rawRes.text();
         combinedContent += `\n\n--- ${file.path} ---\n` + content;
         fetchedCount++;
-        onProgress(`Downloaded ${fetchedCount}/${files.length} files...`);
+        onProgress(`Downloaded ${fetchedCount}/${selectedFiles.length} files...`);
       }
     } catch (e) {
       console.warn(`Failed to fetch ${file.path}`, e);
     }
   }
 
-  onProgress(`Successfully downloaded ${fetchedCount} files.`);
+  onProgress(`Successfully downloaded ${fetchedCount} files. Total tokens: ~${Math.round(totalTokens/1000)}k`);
   return combinedContent;
 }
