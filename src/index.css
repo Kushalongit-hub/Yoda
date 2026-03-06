@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=JetBrains+Mono:wght@300;400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-void: #000005;
+  --color-deep: #04040f;
+  --color-blue-core: #1a6bff;
+  --color-blue-glow: #4d8fff;
+  --color-blue-dim: #0d3a8a;
+  --color-orange-acc: #ff6b2b;
+  --color-white: #e8eeff;
+  --color-muted: #4a5180;
+  --color-horizon: #0a0a1f;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-white);
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+}
+
+@keyframes spin-cube {
+  0% { transform: rotateX(-20deg) rotateY(0deg); }
+  100% { transform: rotateX(-20deg) rotateY(360deg); }
+}
+
+.animate-spin-cube {
+  animation: spin-cube 20s linear infinite;
+  transform-style: preserve-3d;
+}

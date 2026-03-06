@@ -1,0 +1,5 @@
+{
+  "name": "Yoda - your github know it all",
+  "description": "Generate comprehensive code review and technical due diligence reports for any public GitHub repository using Gemini 3.1 Pro.",
+  "requestFramePermissions": []
+}
